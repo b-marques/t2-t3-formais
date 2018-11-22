@@ -83,8 +83,8 @@ class Main extends React.Component {
                   <TableRow>
                     <TableCell>ID</TableCell>
                     <TableCell>Token</TableCell>
-                    <TableCell>Lexema</TableCell>
                     <TableCell>Detail</TableCell>
+                    <TableCell>Lexema</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -94,10 +94,33 @@ class Main extends React.Component {
                         <TableRow key={id}>
                           <TableCell>{element.id}</TableCell>
                           <TableCell>{element.token}</TableCell>
+                          <TableCell>{element.detail}</TableCell>
                           <TableCell component="th" scope="row">
                             {element.lexema}
                           </TableCell>
-                          <TableCell>{element.detail}</TableCell>
+                        </TableRow>
+                      );
+                    }
+                  )}
+                </TableBody>
+              </Table>
+            </Paper>
+          </Grid>
+          <Grid item xs={6} />
+          <Grid item xs={6}>
+            <Paper className={classes.paper}>
+              <Table className={classes.table}>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>Lexical Error (Line number)</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {this.props.analyser.lexical.error_table.map(
+                    (element, id) => {
+                      return (
+                        <TableRow key={id}>
+                          <TableCell>{element.line}</TableCell>
                         </TableRow>
                       );
                     }

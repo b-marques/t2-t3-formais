@@ -3,5 +3,7 @@ import Lexical from "./logic/lexical";
 // import Grammar from "./logic/Grammar";
 
 export const initial_shape = {
-  analyserReducer: { lexical: new Lexical() }
+  analyserReducer: {
+    lexical: new Lexical(`while (true) do 5`)
+  }
 };
