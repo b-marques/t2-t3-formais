@@ -404,14 +404,16 @@ export default class Lexical {
                 id: this.id++,
                 lexema: lexeme,
                 token: "ID",
-                detail: ""
+                detail: "",
+                line: line_number
               });
             } else {
               this.symbol_table.push({
                 id: this.id++,
                 token: info[0].token,
                 lexema: info[0].lexema,
-                detail: info[0].detail
+                detail: info[0].detail,
+                line: line_number
               });
             }
             break;
@@ -420,7 +422,8 @@ export default class Lexical {
               id: this.id++,
               lexema: lexeme,
               token: "NUM",
-              detail: ""
+              detail: "",
+              line: line_number
             });
             break;
           case "real":
@@ -428,7 +431,8 @@ export default class Lexical {
               id: this.id++,
               lexema: lexeme,
               token: "REAL",
-              detail: ""
+              detail: "",
+              line: line_number
             });
             break;
           default:
@@ -437,7 +441,8 @@ export default class Lexical {
               id: this.id++,
               token: info[0].token,
               lexema: info[0].lexema,
-              detail: info[0].detail
+              detail: info[0].detail,
+              line: line_number
             });
             break;
         }
@@ -446,7 +451,6 @@ export default class Lexical {
       } else {
         this.error_table.push({ line: line_number });
       }
-      console.log(state);
     }
   }
 

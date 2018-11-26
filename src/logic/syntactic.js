@@ -201,6 +201,8 @@ export default class Syntactic {
 
     this.parsing_table = [];
     this.build_parsing_table();
+    this.stack = [];
+    this.result = [{ message: "", line_number: "" }];
   }
 
   compute_first_set(head) {
@@ -315,8 +317,107 @@ export default class Syntactic {
     for (let A of this.N) {
       this.parsing_table[A] = [];
       for (let b of this.T) {
-        this.parsing_table[A][b] = { head: "", prod: [["<erro>"]] };
+        this.parsing_table[A][b] = { prod: ["<erro>"] };
+      }
+      this.parsing_table[A]["$"] = { prod: ["<erro>"] };
+    }
+    for (let A of this.N) {
+      for (let a of this.first[A]) {
+        if (a === "&") {
+          for (let b of this.follow[A]) {
+            this.parsing_table[A][b].prod = ["ε"];
+          }
+        } else {
+          let rule = this.P.filter(prod => prod.head === A);
+          for (let production of rule[0].prods) {
+            if (production[0] === a) {
+              this.parsing_table[A][a].prod = production;
+            } else if (this.N.has(production[0])) {
+              for (let each of this.first[production[0]]) {
+                if (each !== "&") {
+                  if (this.parsing_table[A][each].prod.includes("<erro>")) {
+                    this.parsing_table[A][each].prod = production;
+                  }
+                }
+              }
+            }
+          }
+        }
       }
     }
+  }
+
+  analysis(symbol_table) {
+    console.clear();
+    console.log(this.parsing_table);
+    if (!symbol_table.length) {
+      this.result[0].message = "Empty symbol table!";
+      this.result[0].line_number = "";
+      return;
+    }
+    this.result = [{ message: "", line_number: "" }];
+    this.stack = ["$", "<program>"];
+    symbol_table.push({
+      id: symbol_table[symbol_table.length - 1].id + 1,
+      token: "END",
+      lexema: "$",
+      detail: "",
+      line: symbol_table[symbol_table.length - 1].line_number
+    });
+
+    while (symbol_table.length > 0) {
+      console.log(this.stack);
+
+      let stack_symbol = this.stack.pop();
+      if (stack_symbol === "ε") {
+        continue;
+      }
+
+      let input_element = symbol_table.shift();
+
+      if (stack_symbol === "$" && symbol_table.length) {
+        this.result[0].message = "Syntactic error!";
+        this.result[0].line_number = input_element.line;
+        return;
+      }
+
+      switch (input_element.token) {
+        case "ID":
+          input_element.lexema = "id";
+          break;
+        case "NUM":
+          input_element.lexema = "num";
+          break;
+        case "REAL":
+          input_element.lexema = "real";
+          break;
+        default:
+          break;
+      }
+
+      if (input_element.lexema === stack_symbol) {
+        continue;
+      }
+      if (
+        this.parsing_table[stack_symbol][input_element.lexema].prod.includes(
+          "<erro>"
+        )
+      ) {
+        this.result[0].message = "Syntactic error!";
+        this.result[0].line_number = input_element.line;
+        return;
+      } else {
+        symbol_table.unshift(input_element);
+
+        let items = this.parsing_table[stack_symbol][input_element.lexema].prod;
+        let i = items.length;
+        while (i--) {
+          this.stack.push(items[i]);
+        }
+      }
+    }
+    this.result[0].message = "Success!";
+    this.result[0].line_number = "";
+    return;
   }
 }
